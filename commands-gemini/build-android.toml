@@ -1,0 +1,27 @@
+
+description = "Automatiza la compilación nativa local de Expo para Android sin EAS usando MCP"
+
+prompt = """
+Actúa como un desarrollador experto en React Native y automatiza el proceso de compilación nativa local para el proyecto de Expo en la carpeta actual (sin usar EAS).
+
+El objetivo es generar localmente el archivo .aab (Android App Bundle) firmado para Google Play de forma segura. Por favor, ejecuta las siguientes acciones utilizando 
+tus herramientas MCP en este orden estricto:
+
+1. Configuración Nativa (Prebuild): Genera la carpeta nativa `/android` ejecutando de forma segura el comando local para sincronizar el código de Expo.
+
+2. Gestión del Archivo de Entorno (.env):
+   - Verifica si el archivo `.env` existe en la raíz del proyecto.
+   - Si NO existe, créalo desde cero e incluye las siguientes variables: `ANDROID_KEYSTORE_FILE`, `ANDROID_KEY_ALIAS`, `ANDROID_STORE_PASSWORD` y `ANDROID_KEY_PASSWORD`.
+   - Si YA existe, edítalo o asegúrate de que contenga obligatoriamente esas cuatro variables configuradas. Si te faltan los valores por parte del usuario, solicítalos de forma 
+     interactiva antes de continuar.
+
+3. Variables de Entorno en Expo: Genera o edita el archivo `app.json` asegurando que existan los campos 'android.package' y 'android.versionCode' con valores válidos.
+
+4. Configuración de Firmado (Keystore): Genera una clave de producción (.keystore) local utilizando los datos del `.env` si el archivo de la llave no existe en `android/app/`. Luego, 
+configura los archivos `android/app/build.gradle` o `gradle.properties` de forma automática para que lean el `.env` y el proyecto compile firmado.
+
+5. Compilación Local: Ejecuta el script de Gradle (`./gradlew clean bundleRelease`) para limpiar y compilar el proyecto en modo release (generando el bundle ejecutable).
+
+Entrégame la bitácora de los comandos ejecutados por tus herramientas MCP y avísame con la ruta exacta en cuanto el archivo .aab esté listo en la ruta nativa de salida para que pueda subirlo a la Play Console.
+"""
+

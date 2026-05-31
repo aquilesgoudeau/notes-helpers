@@ -1,0 +1,41 @@
+description = "Genera el archivo .ipa firmado de forma 100% nativa y local usando MCP, gestionando credenciales para futuras updates"
+
+prompt = """
+Actúa como un ingeniero DevOps experto en el desarrollo nativo de iOS. Tu objetivo es automatizar de forma 100% LOCAL y NATIVA 
+en mi máquina la generación del archivo `.ipa` de producción para este proyecto de Expo utilizando las herramientas MCP (filesystem y terminal/bash).
+
+PROHIBICIÓN ESTRICTA: No utilices EAS (Expo Application Services) bajo ninguna circunstancia. No ejecutes 'eas build', ni dependas de la nube de Expo. 
+Todo el flujo de compilación, firmado y empaquetado debe ocurrir de forma nativa e independiente en este entorno local.
+
+Sigue estrictamente este flujo de trabajo guiado por el protocolo MCP:
+
+1. **Inspección de Identidad y Configuración Nativa (Filesystem):**
+   - Lee el archivo `app.json`. Verifica y almacena en tu contexto las propiedades `ios.bundleIdentifier`, `ios.buildNumber` y `version`.
+   - Si no existen, detén el proceso inmediatamente. Estos datos son críticos para garantizar la consistencia en futuras actualizaciones de la app nativa.
+
+2. **Validación del Entorno de Firmado Local (Terminal):**
+   - Usa la terminal de macOS para comprobar que mi máquina tiene acceso a las identidades de firmado nativas válidas en el llavero (Keychain). 
+   Puedes listar las identidades de distribución ejecutando: `security find-identity -v -p codesigning`.
+   - Verifica si existe un perfil de provisión (Provisioning Profile) que coincida con el `bundleIdentifier` del proyecto para asegurar 
+   que las actualizaciones subsecuentes utilicen exactamente la misma firma digital. Si detectas problemas, infórmame antes de proceder.
+
+3. **Generación del Código Nativo (Prebuild Local):**
+   - Ejecuta en la terminal de forma local: `npx expo prebuild --platform ios` para generar la carpeta nativa `/ios` y sincronizar los CocoaPods 
+   mediante `pod install` de manera 100% nativa.
+
+4. **Compilación Nativa de Producción (xcodebuild Archive):**
+   - Limpia y genera el archivo ejecutable (`.xcarchive`) en modo Release interactuando directamente con las herramientas de línea de comandos de Xcode:
+     `xcodebuild -workspace ios/*.xcworkspace -scheme $(xcodebuild -list -workspace ios/*.xcworkspace | grep -m 1 "Scheme:" | cut -d' ' -f4) -configuration Release -archivePath ios/build/App.xcarchive archive`
+
+5. **Exportación Nativa a archivo `.ipa`:**
+   - Utiliza `xcodebuild -exportArchive` apuntando al `.xcarchive` generado localmente para empaquetar el archivo `.ipa` final.
+   - Asegúrate de usar o generar un archivo `ExportOptions.plist` nativo donde se especifique el método de distribución (`app-store` o `ad-hoc`) y 
+   se vincule explícitamente el `bundleIdentifier` con su respectivo perfil de provisión de Apple. Esto garantiza que futuras actualizaciones 
+   nativas mantengan la firma consistente y no sean rechazadas por temas de credenciales.
+
+6. **Monitoreo Crítico y Confirmación:**
+   - Monitorea los logs nativos de Xcode a través del MCP. Si ocurre un fallo de Code Signing o aprovisionamiento local, 
+   detén el proceso y extrae las líneas exactas del error. Al finalizar con éxito, confírmame la ruta exacta del archivo `.ipa` generado nativamente.
+
+Comienza leyendo el archivo `app.json` con la herramienta de filesystem.
+"""
