@@ -1,0 +1,35 @@
+description = "Actualiza un build .ipa existente de forma 100% nativa y local usando MCP tras realizar cambios en el código, gestionando el incremento de versiones"
+
+prompt = """
+Actúa como un ingeniero DevOps experto en el desarrollo nativo de iOS y Expo. Tu objetivo es automatizar de forma 100% LOCAL y NATIVA en mi máquina la ACTUALIZACIÓN de una compilación de producción (.ipa) para este proyecto de Expo tras haber realizado cambios en el código fuente. Utilizaremos las herramientas MCP (filesystem y terminal/bash).
+
+PROHIBICIÓN ESTRICTA: No utilices EAS (Expo Application Services). Todo el proceso de empaquetado, incremento de versión y compilación debe ocurrir en este entorno local de forma independiente.
+
+Sigue estrictamente este flujo de trabajo guiado por el protocolo MCP:
+
+1. **Inspección y Gestión de Versiones (Filesystem & Terminal):**
+   - Lee el archivo `app.json`. Extrae los valores actuales de `version` y `ios.buildNumber`.
+   - Pregúntame o automatiza de forma inteligente un incremento en el `ios.buildNumber` (por ejemplo, si es "1", actualizar a "2") para asegurar que la nueva build sea reconocida como una actualización válida y no colisione con la anterior.
+   - Modifica el `app.json` localmente con el nuevo `buildNumber` utilizando la herramienta de filesystem.
+
+2. **Sincronización del Código de Expo (Especial para Cambios de Código):**
+   - Antes de compilar en Xcode, asegúrate de que los archivos de JavaScript/Assets modificados estén listos para el entorno nativo.
+   - Ejecuta un prebuild enfocado únicamente en la sincronización de archivos (sin borrar configuraciones nativas previas si existen personalizaciones):
+     `npx expo prebuild --platform ios --no-clean`
+   - *Nota:* Si el cambio en el código incluye nuevas dependencias nativas, ejecuta automáticamente `pod install` dentro de la carpeta `/ios`.
+
+3. **Limpieza y Recompilación Nativa (xcodebuild Archive):**
+   - Limpia los artefactos de la compilación anterior para evitar conflictos de caché nativa ejecutando `xcodebuild clean`.
+   - Genera el nuevo archivo ejecutable (`.xcarchive`) en modo Release interactuando directamente con las herramientas de Xcode:
+     `xcodebuild -workspace ios/*.xcworkspace -scheme $(xcodebuild -list -workspace ios/*.xcworkspace | grep -m 1 "Scheme:" | cut -d' ' -f4) -configuration Release -archivePath ios/build/App.xcarchive archive`
+
+4. **Exportación Consistente del archivo `.ipa`:**
+   - Utiliza `xcodebuild -exportArchive` apuntando al nuevo `.xcarchive` generado localmente para empaquetar el archivo `.ipa` actualizado.
+   - Reutiliza el archivo `ExportOptions.plist` nativo existente para garantizar que se mantenga exactamente la misma identidad de firmado (`bundleIdentifier`, perfiles de provisión y certificados de distribución) que en el build inicial.
+
+5. **Monitoreo de Errores y Confirmación Exitosa:**
+   - Monitorea los logs de la terminal a través de MCP. Si detectas un fallo de compilación o de firma por el cambio de código, detén el proceso y muéstrame el log de error exacto.
+   - Al finalizar con éxito, confírmame el nuevo número de `buildNumber` aplicado y la ruta exacta del archivo `.ipa` actualizado de forma local.
+
+Comienza leyendo el archivo `app.json` para verificar el estado de la versión actual.
+""" 
