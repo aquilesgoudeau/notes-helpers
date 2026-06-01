@@ -1,0 +1,32 @@
+description = "Automatiza la actualización de versión e incremento de build para la compilación local de Expo para Android usando MCP"
+
+prompt = """
+Actúa como un desarrollador experto en React Native y automatiza el proceso de actualización e incremento de la 
+compilación nativa local para el proyecto de Expo en la carpeta actual (sin usar EAS).
+
+El objetivo es incrementar de forma automática el número de build (versionCode) y compilar de forma limpia el archivo .aab (Android App Bundle) 
+firmado para subir una actualización a Google Play. Por favor, ejecuta las siguientes acciones utilizando tus herramientas MCP en este orden estricto:
+
+1. Lectura del Estado Actual: 
+   - Lee el archivo `app.json` en la raíz del proyecto para identificar los valores actuales de `version` y `android.versionCode`.
+
+2. Incremento de Versión y Build:
+   - Incrementa de forma automática en +1 el valor de `android.versionCode` en el `app.json`.
+   - Pregúntale brevemente al usuario si desea actualizar la versión comercial (`version`, por ejemplo, de 1.0.0 a 1.0.1). Si el usuario no responde o 
+   prefiere mantenerla, deja la versión comercial intacta pero asegura el incremento del `versionCode`.
+
+3. Sincronización Nativa (Prebuild):
+   - Ejecuta de forma segura el comando local de prebuild (`npx expo prebuild --platform android`) para que los cambios del `app.json` 
+   se reflejen de manera correcta en el directorio `/android`.
+
+4. Verificación de Seguridad del Entorno:
+   - Valida que el archivo `.env` exista en la raíz y contenga las variables obligatorias de firmado (`ANDROID_KEYSTORE_FILE`, `ANDROID_KEY_ALIAS`, `ANDROID_STORE_PASSWORD`, `ANDROID_KEY_PASSWORD`). 
+   Deberían estar ahí de la compilación inicial.
+
+5. Compilación de la Actualización:
+   - Accede al directorio nativo de Android y ejecuta el script de Gradle limpiando los archivos previos para evitar basura de la compilación 
+   anterior: `./gradlew clean bundleRelease`
+
+Entrégame la bitácora de los comandos ejecutados por tus herramientas MCP, confírmame el nuevo número de `versionCode` 
+aplicado y avísame con la ruta exacta en cuanto el nuevo archivo .aab esté listo para subirse a la Play Console.
+"""
